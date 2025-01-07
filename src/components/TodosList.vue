@@ -18,6 +18,26 @@
             <q-chip :color="getStatusColor(todo.status)" outline class="q-ma-sm" size="sm">
               {{ todo.status }}
             </q-chip>
+
+            <div>
+              <q-btn
+                icon="check_circle"
+                color="green"
+                flat
+                size="sm"
+                class="q-ma-xs"
+                @click="markAsCompleted(todo)"
+                :disabled="todo.status === 'finished'"
+              />
+              <q-btn
+                icon="delete"
+                color="red"
+                flat
+                size="sm"
+                class="q-ma-xs"
+                @click="deleteTask(todo)"
+              />
+            </div>
           </q-item-section>
         </q-item>
       </q-list>
@@ -55,7 +75,7 @@ export default {
       },
     ])
 
-    const formatDate = (date: any) => {
+    const formatDate = (date?: Date) => {
       if (!date) return 'N/A'
       return new Date(date).toLocaleDateString('pt-BR', {
         year: 'numeric',
@@ -64,7 +84,7 @@ export default {
       })
     }
 
-    const getStatusColor = (status: any) => {
+    const getStatusColor = (status: string) => {
       switch (status) {
         case 'pending':
           return 'orange'
@@ -77,7 +97,7 @@ export default {
       }
     }
 
-    const getIcon = (status: any) => {
+    const getIcon = (status: string) => {
       switch (status) {
         case 'pending':
           return 'hourglass_empty'
@@ -90,11 +110,25 @@ export default {
       }
     }
 
+    const markAsCompleted = (todo: any) => {
+      todo.status = 'finished'
+      todo.finishedAt = new Date()
+    }
+
+    const deleteTask = (todo: any) => {
+      const index = todos.value.indexOf(todo)
+      if (index !== -1) {
+        todos.value.splice(index, 1)
+      }
+    }
+
     return {
       todos,
-      formatDate,
-      getStatusColor,
       getIcon,
+      formatDate,
+      deleteTask,
+      getStatusColor,
+      markAsCompleted,
     }
   },
 }

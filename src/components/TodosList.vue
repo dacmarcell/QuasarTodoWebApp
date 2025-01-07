@@ -7,6 +7,14 @@
       class="q-ma-md"
       @click="isCreateTaskFormOpen = true"
     />
+    <!-- Apagar todas as tarefas finalizadas -->
+    <CleanAllTasksButton />
+    <!-- Filtragem por status -->
+    <div>
+      <q-separator spaced />
+      <StatusFilters />
+    </div>
+    <!-- Chips de informação rápida -->
     <div>
       <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
         {{ inProgressTasksCount }} {{ inProgressTasksCount === 1 ? 'tarefa' : 'tarefas' }} em

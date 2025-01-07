@@ -47,10 +47,13 @@
 
 <script lang="ts">
 import { ref } from 'vue'
+import { useQuasar } from 'quasar'
 
 export default {
   name: 'TodosList',
   setup() {
+    const $q = useQuasar()
+
     const todos = ref([
       {
         title: 'Aprender Quasar',
@@ -113,6 +116,12 @@ export default {
     const markAsCompleted = (todo: any) => {
       todo.status = 'finished'
       todo.finishedAt = new Date()
+
+      $q.notify({
+        message: 'Tarefa concluída com sucesso',
+        color: 'positive',
+        icon: 'check_circle',
+      })
     }
 
     const deleteTask = (todo: any) => {
@@ -120,6 +129,12 @@ export default {
       if (index !== -1) {
         todos.value.splice(index, 1)
       }
+
+      $q.notify({
+        message: 'Tarefa apagada com sucesso',
+        color: 'negative',
+        icon: 'delete',
+      })
     }
 
     return {

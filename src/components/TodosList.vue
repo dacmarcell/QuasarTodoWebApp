@@ -24,31 +24,24 @@
         {{ allTasksCount }} {{ allTasksCount === 1 ? 'tarefa' : 'tarefas' }} no total
       </q-chip>
     </div>
-    <q-btn
-      v-if="doesHaveFinishedTasks"
-      label="Limpar finalizadas"
-      color="secondary"
-      icon="cleaning_services"
-      class="q-ma-md"
-      @click="deleteAllFinishedTasks"
-    />
+    <!-- Lista de tarefas -->
     <q-card>
       <q-list bordered separator>
-        <q-item v-for="todo in todos" :key="todo.title" clickable class="q-pa-sm">
+        <q-item v-for="task in tasks" :key="task.title" clickable class="q-pa-sm">
           <q-item-section avatar>
-            <q-icon :name="getIcon(todo.status)" :color="getStatusColor(todo.status)" size="md" />
+            <q-icon :name="getIcon(task.status)" :color="getStatusColor(task.status)" size="md" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>{{ todo.title }}</q-item-label>
-            <q-item-label caption>{{ todo.description }}</q-item-label>
-            <q-item-label caption> Criado {{ formatDate(todo.created_at) }} </q-item-label>
-            <q-item-label v-if="todo.finished_at" caption>
-              Concluído em: {{ formatDate(todo.finished_at) }}
+            <q-item-label>{{ task.title }}</q-item-label>
+            <q-item-label caption>{{ task.description }}</q-item-label>
+            <q-item-label caption> Criado {{ formatDate(task.created_at) }} </q-item-label>
+            <q-item-label v-if="task.finished_at" caption>
+              Concluído em: {{ formatDate(task.finished_at) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-chip :color="getStatusColor(todo.status)" outline class="q-ma-sm" size="sm">
-              {{ formatStatusName(todo.status) }}
+            <q-chip :color="getStatusColor(task.status)" outline class="q-ma-sm" size="sm">
+              {{ formatStatusName(task.status) }}
             </q-chip>
 
             <div>
@@ -58,18 +51,18 @@
                 icon="start"
                 color="black"
                 class="q-ma-xs"
-                @click="updateTask(todo.id, { status: 'in-progress' })"
-                v-if="todo.status !== 'in-progress' && todo.status !== 'finished'"
+                @click="updateTask(task.id, { status: 'in-progress' }, $q)"
+                v-if="task.status !== 'in-progress' && task.status !== 'finished'"
                 ><q-tooltip>Iniciar tarefa</q-tooltip></q-btn
               >
               <q-btn
-                v-if="todo.status !== 'finished' && todo.status !== 'pending'"
+                v-if="task.status !== 'finished' && task.status !== 'pending'"
                 icon="check_circle"
                 color="green"
                 flat
                 size="sm"
                 class="q-ma-xs"
-                @click="updateTask(todo.id, { status: 'finished' })"
+                @click="updateTask(task.id, { status: 'finished' }, $q)"
                 ><q-tooltip>Completar tarefa</q-tooltip></q-btn
               >
               <q-btn
@@ -78,7 +71,7 @@
                 flat
                 size="sm"
                 class="q-ma-xs"
-                @click="deleteTask(todo.id)"
+                @click="deleteTask(task.id, $q)"
                 ><q-tooltip>Deletar tarefa</q-tooltip></q-btn
               >
             </div>
@@ -124,48 +117,26 @@ import { useQuasar } from 'quasar'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-import { api } from 'src/boot/axios'
-import { CreateTask, Task, UpdateTask } from './models'
+import { CreateTask, Task } from './models'
+import StatusFilters from 'components/StatusFilters.vue'
+import { useTasksStore } from 'src/stores/task-store'
+import CleanAllTasksButton from './CleanAllTasksButton.vue'
 
 export default {
   name: 'TodosList',
   setup() {
     const $q = useQuasar()
+    const tasksStore = useTasksStore()
 
-    const todos = ref<Task[]>([])
-
+    const tasks = ref([] as Task[])
     const isCreateTaskFormOpen = ref(false)
-    const doesHaveFinishedTasks = ref(false)
     const inProgressTasksCount = ref(0)
     const allTasksCount = ref(0)
-
     const newTask = ref<CreateTask>({
       title: '',
       description: '',
       status: 'pending',
     })
-
-    watch(
-      todos,
-      () => {
-        inProgressTasksCount.value = todos.value.filter(
-          (todo) => todo.status === 'in-progress',
-        ).length
-
-        allTasksCount.value = todos.value.length
-
-        doesHaveFinishedTasks.value = todos.value.some((todo) => todo.status === 'finished')
-      },
-      { immediate: true },
-    )
-
-    const deleteAllFinishedTasks = () => {
-      const finishedTasks = todos.value.filter((todo) => todo.status === 'finished')
-
-      finishedTasks.forEach(async (task) => {
-        await deleteTask(task.id)
-      })
-    }
 
     const handleCloseDialog = () => {
       isCreateTaskFormOpen.value = false
@@ -178,8 +149,6 @@ export default {
     }
 
     const handleCreateTask = async () => {
-      isCreateTaskFormOpen.value = false
-
       if (newTask.value.title === '' || newTask.value.description === '') {
         $q.notify({
           message: 'Oops! O título e a descrição são obrigatórios',
@@ -189,98 +158,14 @@ export default {
         return
       }
 
-      await createTask(newTask.value)
-      $q.notify({
-        message: 'Tarefa criada com sucesso',
-        color: 'positive',
-        icon: 'check_circle',
-      })
+      await tasksStore.createTask(newTask.value, $q)
+      isCreateTaskFormOpen.value = false
 
       newTask.value = {
         title: '',
         description: '',
         status: 'pending',
       }
-    }
-
-    const getTasks = async () => {
-      const { data, status } = await api.get('/tasks')
-
-      if (status === 200) {
-        todos.value = data
-        return
-      }
-
-      $q.notify({
-        message: 'Oops! Algo deu errado ao buscar tarefas... Tente novamente mais tarde',
-        color: 'negative',
-        icon: 'error',
-      })
-    }
-
-    const createTask = async (newTask: CreateTask) => {
-      const { status } = await api.post('/tasks', newTask)
-
-      if (status === 201) {
-        await getTasks()
-
-        $q.notify({
-          message: 'Tarefa criada com sucesso',
-          color: 'positive',
-          icon: 'check_circle',
-        })
-        return
-      }
-
-      $q.notify({
-        message: 'Oops! Algo deu errado ao criar a tarefa... Tente novamente mais tarde',
-        color: 'negative',
-        icon: 'error',
-      })
-    }
-
-    const updateTask = async (id: number, data: UpdateTask) => {
-      const { status } = await api.put(`/tasks/${id}`, data)
-
-      if (status === 200) {
-        await getTasks()
-
-        $q.notify({
-          message: 'Tarefa concluída com sucesso',
-          color: 'positive',
-          icon: 'check_circle',
-        })
-
-        return
-      }
-
-      $q.notify({
-        message: 'Oops! Algo deu errado ao concluir a tarefa... Tente novamente mais tarde',
-        color: 'negative',
-        icon: 'error',
-      })
-    }
-
-    const deleteTask = async (id: number) => {
-      const { status } = await api.delete(`/tasks/${id}`)
-
-      if (status === 204) {
-        await getTasks()
-
-        $q.notify({
-          message: 'Tarefa apagada com sucesso',
-          color: 'negative',
-          icon: 'delete',
-        })
-
-        return
-      }
-
-      $q.notify({
-        message: 'Oops! Algo deu errado ao deletar a tarefa... Tente novamente mais tarde',
-        color: 'negative',
-        icon: 'error',
-      })
     }
 
     const formatDate = (date?: Date) => {
@@ -327,26 +212,46 @@ export default {
       }
     }
 
-    onMounted(getTasks)
+    watch(
+      () => tasksStore.tasks,
+      async () => {
+        inProgressTasksCount.value = tasksStore.tasks.filter(
+          (task) => task.status === 'in-progress',
+        ).length
+
+        allTasksCount.value = tasksStore.tasks.length
+
+        tasks.value = tasksStore.tasks
+      },
+      { immediate: true },
+    )
+
+    onMounted(async () => {
+      await tasksStore.getTasks($q)
+
+      console.log(tasksStore.allTasks)
+    })
 
     return {
-      todos,
+      tasks,
+      deleteTask: tasksStore.deleteTask,
+      updateTask: tasksStore.updateTask,
+      createTask: tasksStore.createTask,
       getIcon,
-      formatDate,
-      deleteTask,
-      getStatusColor,
-      updateTask,
-      createTask,
-      isCreateTaskFormOpen,
-      handleCreateTask,
       newTask,
+      formatDate,
+      allTasksCount,
+      getStatusColor,
+      handleCreateTask,
       formatStatusName,
       handleCloseDialog,
-      doesHaveFinishedTasks,
-      deleteAllFinishedTasks,
       inProgressTasksCount,
-      allTasksCount,
+      isCreateTaskFormOpen,
     }
+  },
+  components: {
+    StatusFilters,
+    CleanAllTasksButton,
   },
 }
 </script>

@@ -1,5 +1,12 @@
 <template>
   <q-page padding>
+    <q-btn
+      label="Adicionar Tarefa"
+      color="primary"
+      icon="add"
+      class="q-ma-md"
+      @click="isCreateTaskFormOpen = true"
+    />
     <q-card>
       <q-list bordered separator>
         <q-item v-for="todo in todos" :key="todo.title" clickable class="q-pa-sm">
@@ -16,18 +23,27 @@
           </q-item-section>
           <q-item-section side>
             <q-chip :color="getStatusColor(todo.status)" outline class="q-ma-sm" size="sm">
-              {{ todo.status }}
+              {{ formatStatusName(todo.status) }}
             </q-chip>
 
             <div>
               <q-btn
+                v-if="todo.status !== 'in-progress' && todo.status !== 'finished'"
+                icon="start"
+                color="black"
+                flat
+                size="sm"
+                class="q-ma-xs"
+                @click="updateTask(todo.id, { status: 'in-progress' })"
+              />
+              <q-btn
+                v-if="todo.status !== 'finished' && todo.status !== 'pending'"
                 icon="check_circle"
                 color="green"
                 flat
                 size="sm"
                 class="q-ma-xs"
-                @click="markAsCompleted(todo.id)"
-                :disabled="todo.status === 'finished'"
+                @click="updateTask(todo.id, { status: 'finished' })"
               />
               <q-btn
                 icon="delete"
@@ -42,6 +58,35 @@
         </q-item>
       </q-list>
     </q-card>
+    <q-dialog v-model="isCreateTaskFormOpen" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Criar uma tarefa</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input
+            label="Título"
+            dense
+            v-model="newTask.title"
+            autofocus
+            :rules="[(v) => v || 'O título é obrigatório']"
+          />
+          <q-input
+            label="Descrição"
+            dense
+            v-model="newTask.description"
+            autofocus
+            :rules="[(v) => v || 'A descrição é obrigatória']"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancelar" @click="isCreateTaskFormOpen = false" />
+          <q-btn flat label="Criar tarefa" @click="handleCreateTask" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -49,7 +94,7 @@
 import { onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
-import { CreateTask, Task } from './models'
+import { CreateTask, Task, UpdateTask } from './models'
 
 export default {
   name: 'TodosList',
@@ -57,6 +102,29 @@ export default {
     const $q = useQuasar()
 
     const todos = ref<Task[]>([])
+
+    const isCreateTaskFormOpen = ref(false)
+
+    const newTask = ref<CreateTask>({
+      title: '',
+      description: '',
+      status: 'pending',
+    })
+
+    const handleCreateTask = async () => {
+      isCreateTaskFormOpen.value = false
+
+      if (newTask.value.title === '' || newTask.value.description === '') {
+        $q.notify({
+          message: 'Oops! O título e a descrição são obrigatórios',
+          color: 'negative',
+          icon: 'error',
+        })
+        return
+      }
+
+      await createTask(newTask.value)
+    }
 
     const getTasks = async () => {
       const { data, status } = await api.get('/tasks')
@@ -94,8 +162,8 @@ export default {
       })
     }
 
-    const markAsCompleted = async (id: number) => {
-      const { status } = await api.put(`/tasks/${id}`, { status: 'finished' })
+    const updateTask = async (id: number, data: UpdateTask) => {
+      const { status } = await api.put(`/tasks/${id}`, data)
 
       if (status === 200) {
         await getTasks()
@@ -147,6 +215,19 @@ export default {
       })
     }
 
+    const formatStatusName = (status: string) => {
+      switch (status) {
+        case 'pending':
+          return 'Pendente'
+        case 'in-progress':
+          return 'Em progresso'
+        case 'finished':
+          return 'Concluída'
+        default:
+          return 'Desconhecido'
+      }
+    }
+
     const getStatusColor = (status: string) => {
       switch (status) {
         case 'pending':
@@ -181,8 +262,12 @@ export default {
       formatDate,
       deleteTask,
       getStatusColor,
-      markAsCompleted,
+      updateTask,
       createTask,
+      isCreateTaskFormOpen,
+      handleCreateTask,
+      newTask,
+      formatStatusName,
     }
   },
 }

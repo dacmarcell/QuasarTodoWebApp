@@ -1,12 +1,107 @@
 <template>
-  <h1>todosasdasdlist</h1>
+  <q-page padding>
+    <q-card>
+      <q-list bordered separator>
+        <q-item v-for="todo in todos" :key="todo.title" clickable class="q-pa-sm">
+          <q-item-section avatar>
+            <q-icon :name="getIcon(todo.status)" :color="getStatusColor(todo.status)" size="md" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ todo.title }}</q-item-label>
+            <q-item-label caption>{{ todo.description }}</q-item-label>
+            <q-item-label caption> Criado em: {{ formatDate(todo.createdAt) }} </q-item-label>
+            <q-item-label v-if="todo.finishedAt" caption>
+              Concluído em: {{ formatDate(todo.finishedAt) }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-chip :color="getStatusColor(todo.status)" outline class="q-ma-sm" size="sm">
+              {{ todo.status }}
+            </q-chip>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+  </q-page>
 </template>
 
-<script>
+<script lang="ts">
+import { ref } from 'vue'
+
 export default {
   name: 'TodosList',
   setup() {
-    return {}
+    const todos = ref([
+      {
+        title: 'Aprender Quasar',
+        description: 'Estudar os conceitos básicos de Quasar Framework',
+        createdAt: new Date(),
+        finishedAt: null,
+        status: 'in-progress',
+      },
+      {
+        title: 'Fazer desafio técnico',
+        description: 'Criar uma TODO list com Quasar e Axios',
+        createdAt: new Date(),
+        finishedAt: null,
+        status: 'pending',
+      },
+      {
+        title: 'Finalizar projeto pessoal',
+        description: 'Publicar o sistema de controle de estoque',
+        createdAt: new Date(),
+        finishedAt: new Date(),
+        status: 'finished',
+      },
+    ])
+
+    const formatDate = (date: any) => {
+      if (!date) return 'N/A'
+      return new Date(date).toLocaleDateString('pt-BR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    }
+
+    const getStatusColor = (status: any) => {
+      switch (status) {
+        case 'pending':
+          return 'orange'
+        case 'in-progress':
+          return 'blue'
+        case 'finished':
+          return 'green'
+        default:
+          return 'grey'
+      }
+    }
+
+    const getIcon = (status: any) => {
+      switch (status) {
+        case 'pending':
+          return 'hourglass_empty'
+        case 'in-progress':
+          return 'loop'
+        case 'finished':
+          return 'check_circle'
+        default:
+          return 'help'
+      }
+    }
+
+    return {
+      todos,
+      formatDate,
+      getStatusColor,
+      getIcon,
+    }
   },
 }
 </script>
+
+<style scoped>
+.q-page {
+  width: 100%;
+}
+</style>

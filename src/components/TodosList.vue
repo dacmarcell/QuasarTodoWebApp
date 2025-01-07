@@ -58,7 +58,7 @@
         </q-item>
       </q-list>
     </q-card>
-    <q-dialog v-model="isCreateTaskFormOpen" persistent>
+    <q-dialog v-model="isCreateTaskFormOpen">
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Criar uma tarefa</div>
@@ -70,19 +70,19 @@
             dense
             v-model="newTask.title"
             autofocus
-            :rules="[(v) => v || 'O título é obrigatório']"
+            :rules="[(value) => Boolean(value) || 'O título é obrigatório']"
           />
           <q-input
             label="Descrição"
             dense
             v-model="newTask.description"
             autofocus
-            :rules="[(v) => v || 'A descrição é obrigatória']"
+            :rules="[(value) => Boolean(value) || 'A descrição é obrigatória']"
           />
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancelar" @click="isCreateTaskFormOpen = false" />
+          <q-btn flat label="Cancelar" @click="handleCloseDialog" />
           <q-btn flat label="Criar tarefa" @click="handleCreateTask" />
         </q-card-actions>
       </q-card>
@@ -111,6 +111,16 @@ export default {
       status: 'pending',
     })
 
+    const handleCloseDialog = () => {
+      isCreateTaskFormOpen.value = false
+
+      newTask.value = {
+        title: '',
+        description: '',
+        status: 'pending',
+      }
+    }
+
     const handleCreateTask = async () => {
       isCreateTaskFormOpen.value = false
 
@@ -124,6 +134,17 @@ export default {
       }
 
       await createTask(newTask.value)
+      $q.notify({
+        message: 'Tarefa criada com sucesso',
+        color: 'positive',
+        icon: 'check_circle',
+      })
+
+      newTask.value = {
+        title: '',
+        description: '',
+        status: 'pending',
+      }
     }
 
     const getTasks = async () => {
@@ -268,6 +289,7 @@ export default {
       handleCreateTask,
       newTask,
       formatStatusName,
+      handleCloseDialog,
     }
   },
 }

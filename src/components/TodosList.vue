@@ -9,9 +9,9 @@
           <q-item-section>
             <q-item-label>{{ todo.title }}</q-item-label>
             <q-item-label caption>{{ todo.description }}</q-item-label>
-            <q-item-label caption> Criado em: {{ formatDate(todo.createdAt) }} </q-item-label>
-            <q-item-label v-if="todo.finishedAt" caption>
-              Concluído em: {{ formatDate(todo.finishedAt) }}
+            <q-item-label caption> Criado em: {{ formatDate(todo.created_at) }} </q-item-label>
+            <q-item-label v-if="todo.finished_at" caption>
+              Concluído em: {{ formatDate(todo.finished_at) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -26,7 +26,7 @@
                 flat
                 size="sm"
                 class="q-ma-xs"
-                @click="markAsCompleted(todo)"
+                @click="markAsCompleted(todo.id)"
                 :disabled="todo.status === 'finished'"
               />
               <q-btn
@@ -35,7 +35,7 @@
                 flat
                 size="sm"
                 class="q-ma-xs"
-                @click="deleteTask(todo)"
+                @click="deleteTask(todo.id)"
               />
             </div>
           </q-item-section>
@@ -46,37 +46,97 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
+import { api } from 'src/boot/axios'
+import { CreateTask, Task } from './models'
 
 export default {
   name: 'TodosList',
   setup() {
     const $q = useQuasar()
 
-    const todos = ref([
-      {
-        title: 'Aprender Quasar',
-        description: 'Estudar os conceitos básicos de Quasar Framework',
-        createdAt: new Date(),
-        finishedAt: null,
-        status: 'in-progress',
-      },
-      {
-        title: 'Fazer desafio técnico',
-        description: 'Criar uma TODO list com Quasar e Axios',
-        createdAt: new Date(),
-        finishedAt: null,
-        status: 'pending',
-      },
-      {
-        title: 'Finalizar projeto pessoal',
-        description: 'Publicar o sistema de controle de estoque',
-        createdAt: new Date(),
-        finishedAt: new Date(),
-        status: 'finished',
-      },
-    ])
+    const todos = ref<Task[]>([])
+
+    const getTasks = async () => {
+      const { data, status } = await api.get('/tasks')
+
+      if (status === 200) {
+        todos.value = data
+        return
+      }
+
+      $q.notify({
+        message: 'Oops! Algo deu errado ao buscar tarefas... Tente novamente mais tarde',
+        color: 'negative',
+        icon: 'error',
+      })
+    }
+
+    const createTask = async (newTask: CreateTask) => {
+      const { status } = await api.post('/tasks', newTask)
+
+      if (status === 201) {
+        await getTasks()
+
+        $q.notify({
+          message: 'Tarefa criada com sucesso',
+          color: 'positive',
+          icon: 'check_circle',
+        })
+        return
+      }
+
+      $q.notify({
+        message: 'Oops! Algo deu errado ao criar a tarefa... Tente novamente mais tarde',
+        color: 'negative',
+        icon: 'error',
+      })
+    }
+
+    const markAsCompleted = async (id: number) => {
+      const { status } = await api.put(`/tasks/${id}`, { status: 'finished' })
+
+      if (status === 200) {
+        await getTasks()
+
+        $q.notify({
+          message: 'Tarefa concluída com sucesso',
+          color: 'positive',
+          icon: 'check_circle',
+        })
+
+        return
+      }
+
+      $q.notify({
+        message: 'Oops! Algo deu errado ao concluir a tarefa... Tente novamente mais tarde',
+        color: 'negative',
+        icon: 'error',
+      })
+    }
+
+    const deleteTask = async (id: number) => {
+      const { status } = await api.delete(`/tasks/${id}`)
+
+      if (status === 204) {
+        await getTasks()
+
+        $q.notify({
+          message: 'Tarefa apagada com sucesso',
+          color: 'negative',
+          icon: 'delete',
+        })
+
+        return
+      }
+
+      $q.notify({
+        message: 'Oops! Algo deu errado ao deletar a tarefa... Tente novamente mais tarde',
+        color: 'negative',
+        icon: 'error',
+      })
+    }
 
     const formatDate = (date?: Date) => {
       if (!date) return 'N/A'
@@ -113,29 +173,7 @@ export default {
       }
     }
 
-    const markAsCompleted = (todo: any) => {
-      todo.status = 'finished'
-      todo.finishedAt = new Date()
-
-      $q.notify({
-        message: 'Tarefa concluída com sucesso',
-        color: 'positive',
-        icon: 'check_circle',
-      })
-    }
-
-    const deleteTask = (todo: any) => {
-      const index = todos.value.indexOf(todo)
-      if (index !== -1) {
-        todos.value.splice(index, 1)
-      }
-
-      $q.notify({
-        message: 'Tarefa apagada com sucesso',
-        color: 'negative',
-        icon: 'delete',
-      })
-    }
+    onMounted(getTasks)
 
     return {
       todos,
@@ -144,6 +182,7 @@ export default {
       deleteTask,
       getStatusColor,
       markAsCompleted,
+      createTask,
     }
   },
 }

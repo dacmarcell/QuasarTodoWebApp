@@ -6,7 +6,19 @@
 
         <q-toolbar-title> Super TODO App! </q-toolbar-title>
 
-        <a>Github</a>
+        <q-btn
+          href="https://github.com/dacmarcell"
+          target="_blank"
+          icon-right="open_in_new"
+          class="q-mr-sm"
+          >Github</q-btn
+        >
+        <q-btn
+          href="https://linkedin.com/in/marcell-dactes"
+          target="_blank"
+          icon-right="open_in_new"
+          >LinkedIN</q-btn
+        >
       </q-toolbar>
     </q-header>
 

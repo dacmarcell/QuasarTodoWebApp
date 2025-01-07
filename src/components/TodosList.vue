@@ -7,6 +7,14 @@
       class="q-ma-md"
       @click="isCreateTaskFormOpen = true"
     />
+    <q-btn
+      v-if="doesHaveFinishedTasks"
+      label="Limpar finalizadas"
+      color="secondary"
+      icon="cleaning_services"
+      class="q-ma-md"
+      @click="deleteAllFinishedTasks"
+    />
     <q-card>
       <q-list bordered separator>
         <q-item v-for="todo in todos" :key="todo.title" clickable class="q-pa-sm">
@@ -91,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
 import { CreateTask, Task, UpdateTask } from './models'
@@ -104,12 +112,29 @@ export default {
     const todos = ref<Task[]>([])
 
     const isCreateTaskFormOpen = ref(false)
+    const doesHaveFinishedTasks = ref(false)
 
     const newTask = ref<CreateTask>({
       title: '',
       description: '',
       status: 'pending',
     })
+
+    watch(
+      todos,
+      () => {
+        doesHaveFinishedTasks.value = todos.value.some((todo) => todo.status === 'finished')
+      },
+      { immediate: true },
+    )
+
+    const deleteAllFinishedTasks = () => {
+      const finishedTasks = todos.value.filter((todo) => todo.status === 'finished')
+
+      finishedTasks.forEach(async (task) => {
+        await deleteTask(task.id)
+      })
+    }
 
     const handleCloseDialog = () => {
       isCreateTaskFormOpen.value = false
@@ -290,6 +315,8 @@ export default {
       newTask,
       formatStatusName,
       handleCloseDialog,
+      doesHaveFinishedTasks,
+      deleteAllFinishedTasks,
     }
   },
 }

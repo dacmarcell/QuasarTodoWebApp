@@ -7,6 +7,15 @@
       class="q-ma-md"
       @click="isCreateTaskFormOpen = true"
     />
+    <div>
+      <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
+        {{ inProgressTasksCount }} {{ inProgressTasksCount === 1 ? 'tarefa' : 'tarefas' }} em
+        progresso
+      </q-chip>
+      <q-chip v-if="allTasksCount > 0" color="green" outline class="q-ma-sm" size="sm">
+        {{ allTasksCount }} {{ allTasksCount === 1 ? 'tarefa' : 'tarefas' }} no total
+      </q-chip>
+    </div>
     <q-btn
       v-if="doesHaveFinishedTasks"
       label="Limpar finalizadas"
@@ -24,7 +33,7 @@
           <q-item-section>
             <q-item-label>{{ todo.title }}</q-item-label>
             <q-item-label caption>{{ todo.description }}</q-item-label>
-            <q-item-label caption> Criado em: {{ formatDate(todo.created_at) }} </q-item-label>
+            <q-item-label caption> Criado {{ formatDate(todo.created_at) }} </q-item-label>
             <q-item-label v-if="todo.finished_at" caption>
               Concluído em: {{ formatDate(todo.finished_at) }}
             </q-item-label>
@@ -101,6 +110,9 @@
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+
 import { api } from 'src/boot/axios'
 import { CreateTask, Task, UpdateTask } from './models'
 
@@ -113,6 +125,8 @@ export default {
 
     const isCreateTaskFormOpen = ref(false)
     const doesHaveFinishedTasks = ref(false)
+    const inProgressTasksCount = ref(0)
+    const allTasksCount = ref(0)
 
     const newTask = ref<CreateTask>({
       title: '',
@@ -123,6 +137,12 @@ export default {
     watch(
       todos,
       () => {
+        inProgressTasksCount.value = todos.value.filter(
+          (todo) => todo.status === 'in-progress',
+        ).length
+
+        allTasksCount.value = todos.value.length
+
         doesHaveFinishedTasks.value = todos.value.some((todo) => todo.status === 'finished')
       },
       { immediate: true },
@@ -254,11 +274,7 @@ export default {
 
     const formatDate = (date?: Date) => {
       if (!date) return 'N/A'
-      return new Date(date).toLocaleDateString('pt-BR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      return formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
     }
 
     const formatStatusName = (status: string) => {
@@ -317,6 +333,8 @@ export default {
       handleCloseDialog,
       doesHaveFinishedTasks,
       deleteAllFinishedTasks,
+      inProgressTasksCount,
+      allTasksCount,
     }
   },
 }

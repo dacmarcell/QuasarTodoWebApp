@@ -1,8 +1,6 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <div class="bg-primary q-pa-xl">
-      <TodosList />
-    </div>
+    <TodosList />
   </q-page>
 </template>
 

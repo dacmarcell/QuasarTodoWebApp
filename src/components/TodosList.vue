@@ -45,14 +45,15 @@
 
             <div>
               <q-btn
-                v-if="todo.status !== 'in-progress' && todo.status !== 'finished'"
-                icon="start"
-                color="black"
                 flat
                 size="sm"
+                icon="start"
+                color="black"
                 class="q-ma-xs"
                 @click="updateTask(todo.id, { status: 'in-progress' })"
-              />
+                v-if="todo.status !== 'in-progress' && todo.status !== 'finished'"
+                ><q-tooltip>Iniciar tarefa</q-tooltip></q-btn
+              >
               <q-btn
                 v-if="todo.status !== 'finished' && todo.status !== 'pending'"
                 icon="check_circle"
@@ -61,7 +62,8 @@
                 size="sm"
                 class="q-ma-xs"
                 @click="updateTask(todo.id, { status: 'finished' })"
-              />
+                ><q-tooltip>Completar tarefa</q-tooltip></q-btn
+              >
               <q-btn
                 icon="delete"
                 color="red"
@@ -69,7 +71,8 @@
                 size="sm"
                 class="q-ma-xs"
                 @click="deleteTask(todo.id)"
-              />
+                ><q-tooltip>Deletar tarefa</q-tooltip></q-btn
+              >
             </div>
           </q-item-section>
         </q-item>

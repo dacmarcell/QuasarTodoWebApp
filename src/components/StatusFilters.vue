@@ -1,9 +1,9 @@
 <template>
-  <div class="row items-center justify-center q-mb-md">
-    <q-btn-group flat>
+  <div class="row items-center justify-end q-mb-md">
+    <q-btn-group outline flat>
       <q-btn
+        class="text-bold"
         v-for="statusOptions in statusOptions"
-        flat
         :key="statusOptions.value"
         :label="statusOptions.label"
         :outline="filter !== statusOptions.value"

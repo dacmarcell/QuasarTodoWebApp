@@ -8,11 +8,8 @@ export type Task = {
   status: TaskStatus
 }
 
-export type CreateTask = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'finished_at'>
-export type UpdateTask = Partial<Omit<Task, 'id' | 'created_at' | 'updated_at' | 'finished_at'>>
-
 export type TaskStatus = 'pending' | 'in-progress' | 'finished'
+export type FilterStatus = 'all' | TaskStatus
 
-export interface Meta {
-  totalCount: number
-}
+export type CreateTask = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'finished_at'>
+export type UpdateTask = Partial<CreateTask>

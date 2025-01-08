@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 
 import { CreateTask } from './models'
@@ -74,10 +74,6 @@ export default {
       description: '',
       status: 'pending',
     })
-
-    const tasksToDisplay = computed(() =>
-      tasksStore.filter === null ? tasksStore.tasks : tasksStore.filteredTasks,
-    )
 
     const handleOpenDialog = () => {
       isCreateTaskFormOpen.value = true
@@ -128,7 +124,6 @@ export default {
     return {
       newTask,
       allTasksCount,
-      tasksToDisplay,
       handleOpenDialog,
       handleCreateTask,
       handleCloseDialog,

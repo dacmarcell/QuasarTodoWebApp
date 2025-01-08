@@ -7,13 +7,9 @@
       class="q-ma-md"
       @click="isCreateTaskFormOpen = true"
     />
-    <!-- Apagar todas as tarefas finalizadas -->
     <CleanAllTasksButton />
-    <!-- Filtragem por status -->
-    <div>
-      <q-separator spaced />
-      <StatusFilters />
-    </div>
+    <q-separator spaced />
+    <StatusFilters />
     <!-- Chips de informação rápida -->
     <div>
       <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
@@ -27,7 +23,7 @@
     <!-- Lista de tarefas -->
     <q-card>
       <q-list bordered separator>
-        <q-item v-for="task in tasks" :key="task.title" clickable class="q-pa-sm">
+        <q-item v-for="task in tasksToDisplay" :key="task.title" clickable class="q-pa-sm">
           <q-item-section avatar>
             <q-icon :name="getIcon(task.status)" :color="getStatusColor(task.status)" size="md" />
           </q-item-section>
@@ -112,12 +108,12 @@
 </template>
 
 <script lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-import { CreateTask, Task } from './models'
+import { CreateTask, Task, TaskStatus } from './models'
 import StatusFilters from 'components/StatusFilters.vue'
 import { useTasksStore } from 'src/stores/task-store'
 import CleanAllTasksButton from './CleanAllTasksButton.vue'
@@ -128,7 +124,8 @@ export default {
     const $q = useQuasar()
     const tasksStore = useTasksStore()
 
-    const tasks = ref([] as Task[])
+    const tasks = ref<Task[]>([])
+
     const isCreateTaskFormOpen = ref(false)
     const inProgressTasksCount = ref(0)
     const allTasksCount = ref(0)
@@ -137,6 +134,10 @@ export default {
       description: '',
       status: 'pending',
     })
+
+    const tasksToDisplay = computed(() =>
+      tasksStore.filter === null ? tasksStore.tasks : tasksStore.filteredTasks,
+    )
 
     const handleCloseDialog = () => {
       isCreateTaskFormOpen.value = false
@@ -159,8 +160,8 @@ export default {
       }
 
       await tasksStore.createTask(newTask.value, $q)
-      isCreateTaskFormOpen.value = false
 
+      isCreateTaskFormOpen.value = false
       newTask.value = {
         title: '',
         description: '',
@@ -173,7 +174,7 @@ export default {
       return formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
     }
 
-    const formatStatusName = (status: string) => {
+    const formatStatusName = (status: TaskStatus) => {
       switch (status) {
         case 'pending':
           return 'Pendente'
@@ -186,7 +187,7 @@ export default {
       }
     }
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: TaskStatus) => {
       switch (status) {
         case 'pending':
           return 'orange'
@@ -199,7 +200,7 @@ export default {
       }
     }
 
-    const getIcon = (status: string) => {
+    const getIcon = (status: TaskStatus) => {
       switch (status) {
         case 'pending':
           return 'hourglass_empty'
@@ -228,12 +229,11 @@ export default {
 
     onMounted(async () => {
       await tasksStore.getTasks($q)
-
-      console.log(tasksStore.allTasks)
     })
 
     return {
-      tasks,
+      tasksToDisplay,
+      filteredTasks: tasksStore.filteredTasks,
       deleteTask: tasksStore.deleteTask,
       updateTask: tasksStore.updateTask,
       createTask: tasksStore.createTask,

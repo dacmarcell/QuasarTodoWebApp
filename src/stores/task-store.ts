@@ -22,6 +22,10 @@ export const useTasksStore = defineStore('tasks', {
       return state.tasks.length
     },
 
+    inProgressTasksCount(state) {
+      return state.tasks.filter((task) => task.status === 'in-progress').length
+    },
+
     totalFinishedTasksCount(state) {
       return state.tasks.filter((task) => task.status === 'finished').length
     },

@@ -10,7 +10,7 @@
 </template>
 <script lang="ts">
 import { useQuasar } from 'quasar'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useTasksStore } from 'src/stores/task-store'
 
 export default {
@@ -19,14 +19,8 @@ export default {
     const tasksStore = useTasksStore()
     const $q = useQuasar()
 
-    const doesHaveFinishedTasks = ref(false)
-
-    watch(
-      () => tasksStore.tasks,
-      () => {
-        doesHaveFinishedTasks.value = tasksStore.tasks.some((todo) => todo.status === 'finished')
-      },
-      { immediate: true },
+    const doesHaveFinishedTasks = computed(() =>
+      tasksStore.tasks.some((task) => task.status === 'finished'),
     )
 
     const handleDeleteFinishedTasks = async () => {

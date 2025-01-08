@@ -21,10 +21,10 @@
 <script lang="ts">
 import { computed } from 'vue'
 import { useTasksStore } from 'src/stores/task-store'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { FilterStatus, TaskStatus } from './models'
 
-type StatusOption = { label: string; value: FilterStatus }
+import { TaskStatus } from './models'
+
+type StatusOption = { label: string; value: TaskStatus }
 
 export default {
   name: 'StatusFilters',
@@ -39,7 +39,6 @@ export default {
     })
 
     const statusOptions: StatusOption[] = [
-      { label: 'Todos', value: 'all' },
       { label: 'Pendente', value: 'pending' },
       { label: 'Em progresso', value: 'in-progress' },
       { label: 'Concluída', value: 'finished' },

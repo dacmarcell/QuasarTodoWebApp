@@ -9,7 +9,7 @@ export type Task = {
   categories: Categories[]
 }
 
-type Categories = {
+export type Categories = {
   id: number
   name: string
   task_id: number

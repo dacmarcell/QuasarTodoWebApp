@@ -25,6 +25,13 @@
           autofocus
           :rules="[(value) => Boolean(value) || 'A descrição é obrigatória']"
         />
+        <q-input
+          label="Categoria"
+          dense
+          v-model="newTask.category_name"
+          autofocus
+          :rules="[(value) => Boolean(value) || 'O nome da categoria é obrigatório']"
+        />
       </q-card-section>
 
       <q-card-actions align="right" class="text-primary">
@@ -54,6 +61,7 @@ export default {
       title: '',
       description: '',
       status: 'pending',
+      category_name: '',
     })
 
     const handleCreateTask = async () => {
@@ -73,6 +81,7 @@ export default {
         title: '',
         description: '',
         status: 'pending',
+        category_name: '',
       }
     }
 
@@ -84,6 +93,7 @@ export default {
           title: '',
           description: '',
           status: 'pending',
+          category_name: '',
         }
       }
     }

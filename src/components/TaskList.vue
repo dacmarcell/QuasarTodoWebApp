@@ -1,7 +1,7 @@
 <template>
   <q-card>
     <q-list bordered separator>
-      <q-item v-for="task in tasksToDisplay" :key="task.title" clickable class="q-pa-sm">
+      <q-item v-for="task in tasks" :key="task.title" clickable class="q-pa-sm">
         <q-item-section avatar>
           <q-icon :name="getIcon(task.status)" :color="getStatusColor(task.status)" size="md" />
         </q-item-section>
@@ -59,11 +59,16 @@ import { useTasksStore } from 'src/stores/task-store'
 import { TaskStatus } from './models'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useQuasar } from 'quasar'
+import { computed, onMounted } from 'vue'
 
 export default {
   name: 'TaskList',
   setup() {
     const tasksStore = useTasksStore()
+    const $q = useQuasar()
+
+    const tasks = computed(() => tasksStore.tasks)
 
     const getStatusColor = (status: TaskStatus) => {
       switch (status) {
@@ -109,14 +114,18 @@ export default {
       return formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
     }
 
+    onMounted(async () => {
+      await tasksStore.getTasks($q)
+    })
+
     return {
-      tasksToDisplay: tasksStore.tasks,
+      tasks,
+      getIcon,
+      formatDate,
+      getStatusColor,
+      formatStatusName,
       updateTask: tasksStore.updateTask,
       deleteTask: tasksStore.deleteTask,
-      formatStatusName,
-      getStatusColor,
-      formatDate,
-      getIcon,
     }
   },
 }

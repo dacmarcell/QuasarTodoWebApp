@@ -12,6 +12,19 @@
           <q-item-label v-if="task.finished_at" caption>
             Concluído em: {{ formatDate(task.finished_at) }}
           </q-item-label>
+
+          <q-item-label caption class="q-mt-sm">
+            Categorias:
+            <q-chip
+              v-for="category in task.categories"
+              :key="category.id"
+              class="q-ma-xs"
+              color="secondary"
+              label-color="white"
+            >
+              {{ category.name }}
+            </q-chip>
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-chip :color="getStatusColor(task.status)" outline class="q-ma-sm" size="sm">

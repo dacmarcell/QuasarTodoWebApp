@@ -1,40 +1,44 @@
-# Softpar Challenge (softpar-challenge-web)
+# QuasarTodoWebApp
 
-A Quasar Project
+Aplicação Web criada com o framework Quasar com objetivo de ser um painel de TODO list. É possível ler, criar, atualizar e deletar tarefas além de filtra-las por status. Também é possível obter dados de quantidade de tarefas por status.
 
-## Install the dependencies
+## Stack
+
+![quasar](https://img.shields.io/badge/Quasar-16B7FB?style=for-the-badge&logo=quasar&logoColor=black)
+![vuejs](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
+![typescript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+
+#### Versões
+
+Framework Quasar v2
+
+Vue.js v3
+
+Typescript v5
+
+## Rodando localmente
+
+Clone o projeto
+
 ```bash
-yarn
-# or
-npm install
+  git clone https://github.com/dacmarcell/QuasarTodoWebApp
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+Entre no diretório do projeto
+
 ```bash
-quasar dev
+  cd QuasarTodoWebApp
 ```
 
+Instale as dependências
 
-### Lint the files
 ```bash
-yarn lint
-# or
-npm run lint
+  npm ci
+  npm run postinstall
 ```
 
+Inicie o servidor
 
-### Format the files
 ```bash
-yarn format
-# or
-npm run format
+  npm run dev
 ```
-
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).

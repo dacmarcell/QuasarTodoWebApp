@@ -49,10 +49,10 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 
-import { CreateTask, Task } from './models'
+import { CreateTask } from './models'
 import { useTasksStore } from 'src/stores/task-store'
 
 import CleanAllTasksButton from './CleanAllTasksButton.vue'
@@ -65,8 +65,6 @@ export default {
   setup() {
     const $q = useQuasar()
     const tasksStore = useTasksStore()
-
-    const tasks = ref<Task[]>([])
 
     const isCreateTaskFormOpen = ref(false)
     const inProgressTasksCount = ref(0)
@@ -123,15 +121,9 @@ export default {
         ).length
 
         allTasksCount.value = tasksStore.tasks.length
-
-        tasks.value = tasksStore.tasks
       },
       { immediate: true },
     )
-
-    onMounted(async () => {
-      await tasksStore.getTasks($q)
-    })
 
     return {
       newTask,

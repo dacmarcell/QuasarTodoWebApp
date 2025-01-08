@@ -49,6 +49,7 @@ export const useTasksStore = defineStore('tasks', {
 
       if (status === 200) {
         this.tasks = data
+        this.filter = null
 
         $q.notify({
           message: 'Tarefas carregadas com sucesso',

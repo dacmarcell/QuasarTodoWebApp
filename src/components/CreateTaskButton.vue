@@ -4,7 +4,7 @@
     color="primary"
     icon="add"
     class="q-ma-md"
-    @click="handleOpenDialog()"
+    @click="handleOpenDialog"
   />
 </template>
 
@@ -12,10 +12,13 @@
 export default {
   name: 'CreateTaskButton',
   props: {
-    handleOpenDialog: {
-      type: Function,
-      required: true,
-    },
+    isCreateTaskFormOpen: Boolean,
+  },
+  setup(_, ctx) {
+    const handleOpenDialog = () => {
+      ctx.emit('update:isCreateTaskFormOpen', true)
+    }
+    return { handleOpenDialog }
   },
 }
 </script>

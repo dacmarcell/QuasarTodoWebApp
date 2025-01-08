@@ -1,20 +1,22 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <q-page padding>
-      <CreateTaskButton
-        :isCreateTaskFormOpen="isCreateTaskFormOpen"
-        @update:isCreateTaskFormOpen="isCreateTaskFormOpen = $event"
-      />
-      <CreateTaskDialog
-        :isCreateTaskFormOpen="isCreateTaskFormOpen"
-        @update:isCreateTaskFormOpen="isCreateTaskFormOpen = $event"
-      />
-      <CleanAllTasksButton />
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="row items-center justify-end">
+        <CleanAllTasksButton />
+        <CreateTaskButton
+          :isCreateTaskFormOpen="isCreateTaskFormOpen"
+          @update:isCreateTaskFormOpen="isCreateTaskFormOpen = $event"
+        />
+        <CreateTaskDialog
+          :isCreateTaskFormOpen="isCreateTaskFormOpen"
+          @update:isCreateTaskFormOpen="isCreateTaskFormOpen = $event"
+        />
+      </div>
       <q-separator spaced />
       <StatusFilters />
       <TaskChips />
       <TaskList />
-    </q-page>
+    </div>
   </q-page>
 </template>
 

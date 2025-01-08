@@ -13,7 +13,10 @@
             ? statusColors[statusOptions.value as TaskStatus]
             : 'grey-5'
         "
-      />
+        ><q-tooltip
+          >{{ filter === statusOptions.value ? 'Todas as tarefas' : statusOptions.tooltip }}
+        </q-tooltip></q-btn
+      >
     </q-btn-group>
   </div>
 </template>
@@ -24,7 +27,7 @@ import { useTasksStore } from 'src/stores/task-store'
 
 import { TaskStatus } from './models'
 
-type StatusOption = { label: string; value: TaskStatus }
+type StatusOption = { label: string; value: TaskStatus; tooltip: string }
 
 export default {
   name: 'StatusFilters',
@@ -39,9 +42,9 @@ export default {
     })
 
     const statusOptions: StatusOption[] = [
-      { label: 'Pendente', value: 'pending' },
-      { label: 'Em progresso', value: 'in-progress' },
-      { label: 'Concluída', value: 'finished' },
+      { label: 'Pendente', value: 'pending', tooltip: 'Tarefas pendentes' },
+      { label: 'Em progresso', value: 'in-progress', tooltip: 'Tarefas em progresso' },
+      { label: 'Concluída', value: 'finished', tooltip: 'Tarefas concluídas' },
     ]
 
     const statusColors = {

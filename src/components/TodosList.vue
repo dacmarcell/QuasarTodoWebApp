@@ -1,12 +1,6 @@
 <template>
   <q-page padding>
-    <q-btn
-      label="Adicionar Tarefa"
-      color="primary"
-      icon="add"
-      class="q-ma-md"
-      @click="isCreateTaskFormOpen = true"
-    />
+    <CreateTaskButton :handleOpenDialog="handleOpenDialog" />
     <CleanAllTasksButton />
     <q-separator spaced />
     <StatusFilters />
@@ -117,6 +111,7 @@ import { CreateTask, Task, TaskStatus } from './models'
 import StatusFilters from 'components/StatusFilters.vue'
 import { useTasksStore } from 'src/stores/task-store'
 import CleanAllTasksButton from './CleanAllTasksButton.vue'
+import CreateTaskButton from './CreateTaskButton.vue'
 
 export default {
   name: 'TodosList',
@@ -138,6 +133,10 @@ export default {
     const tasksToDisplay = computed(() =>
       tasksStore.filter === null ? tasksStore.tasks : tasksStore.filteredTasks,
     )
+
+    const handleOpenDialog = () => {
+      isCreateTaskFormOpen.value = true
+    }
 
     const handleCloseDialog = () => {
       isCreateTaskFormOpen.value = false
@@ -247,11 +246,13 @@ export default {
       handleCloseDialog,
       inProgressTasksCount,
       isCreateTaskFormOpen,
+      handleOpenDialog,
     }
   },
   components: {
     StatusFilters,
     CleanAllTasksButton,
+    CreateTaskButton,
   },
 }
 </script>

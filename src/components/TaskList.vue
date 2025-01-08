@@ -55,12 +55,13 @@
   </q-card>
 </template>
 <script lang="ts">
-import { useTasksStore } from 'src/stores/task-store'
-import { TaskStatus } from './models'
 import { formatDistanceToNow } from 'date-fns'
+import { computed, onMounted } from 'vue'
 import { ptBR } from 'date-fns/locale'
 import { useQuasar } from 'quasar'
-import { computed, onMounted } from 'vue'
+
+import { useTasksStore } from 'src/stores/task-store'
+import { TaskStatus } from './models'
 
 export default {
   name: 'TaskList',
@@ -68,7 +69,9 @@ export default {
     const tasksStore = useTasksStore()
     const $q = useQuasar()
 
-    const tasks = computed(() => tasksStore.tasks)
+    const tasks = computed(() =>
+      tasksStore.filter === null ? tasksStore.tasks : tasksStore.filteredTasks,
+    )
 
     const getStatusColor = (status: TaskStatus) => {
       switch (status) {

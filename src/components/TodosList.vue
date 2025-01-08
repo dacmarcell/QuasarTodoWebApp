@@ -4,26 +4,7 @@
     <CleanAllTasksButton />
     <q-separator spaced />
     <StatusFilters />
-    <!-- Chips de informação rápida -->
-    <div>
-      <q-chip v-if="pendingTasksCount > 0" color="orange" outline class="q-ma-sm" size="sm">
-        {{ pendingTasksCount }}
-        {{ pendingTasksCount === 1 ? 'tarefa pendente' : 'tarefas pendentes' }}
-      </q-chip>
-      <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
-        {{ inProgressTasksCount }}
-        {{ inProgressTasksCount === 1 ? 'tarefa' : 'tarefas' }} em andamento
-      </q-chip>
-      <q-chip v-if="finishedTasksCount > 0" color="green" outline class="q-ma-sm" size="sm">
-        {{ finishedTasksCount }}
-        {{ finishedTasksCount === 1 ? 'tarefa concluída' : 'tarefas concluídas' }}
-      </q-chip>
-      <q-chip v-if="allTasksCount > 0" color="purple" outline class="q-ma-sm" size="sm">
-        {{ allTasksCount }}
-        {{ allTasksCount === 1 ? 'tarefa' : 'tarefas' }} no total
-      </q-chip>
-    </div>
-    <!-- Lista de tarefas -->
+    <TaskChips />
     <TaskList />
     <q-dialog v-model="isCreateTaskFormOpen">
       <q-card style="min-width: 350px">
@@ -58,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 
 import { CreateTask } from './models'
@@ -68,6 +49,7 @@ import CleanAllTasksButton from './CleanAllTasksButton.vue'
 import CreateTaskButton from './CreateTaskButton.vue'
 import StatusFilters from './StatusFilters.vue'
 import TaskList from './TaskList.vue'
+import TaskChips from './TaskChips.vue'
 
 export default {
   name: 'TodosList',
@@ -76,10 +58,6 @@ export default {
     const tasksStore = useTasksStore()
 
     const isCreateTaskFormOpen = ref(false)
-    const inProgressTasksCount = ref(0)
-    const finishedTasksCount = ref(0)
-    const pendingTasksCount = ref(0)
-    const allTasksCount = ref(0)
     const newTask = ref<CreateTask>({
       title: '',
       description: '',
@@ -120,33 +98,19 @@ export default {
       }
     }
 
-    watch(
-      () => tasksStore.tasks,
-      async () => {
-        allTasksCount.value = tasksStore.tasks.length
-        inProgressTasksCount.value = tasksStore.inProgressTasksCount
-        finishedTasksCount.value = tasksStore.totalFinishedTasksCount
-        pendingTasksCount.value = tasksStore.totalPendingTasksCount
-      },
-      { immediate: true },
-    )
-
     return {
       newTask,
-      allTasksCount,
       handleOpenDialog,
       handleCreateTask,
       handleCloseDialog,
-      finishedTasksCount,
-      inProgressTasksCount,
       isCreateTaskFormOpen,
-      pendingTasksCount,
     }
   },
   components: {
     CleanAllTasksButton,
     CreateTaskButton,
     StatusFilters,
+    TaskChips,
     TaskList,
   },
 }

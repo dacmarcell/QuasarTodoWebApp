@@ -129,10 +129,6 @@ export default {
       handleCloseDialog,
       inProgressTasksCount,
       isCreateTaskFormOpen,
-      deleteTask: tasksStore.deleteTask,
-      updateTask: tasksStore.updateTask,
-      createTask: tasksStore.createTask,
-      filteredTasks: tasksStore.filteredTasks,
     }
   },
   components: {

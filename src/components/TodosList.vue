@@ -6,12 +6,21 @@
     <StatusFilters />
     <!-- Chips de informação rápida -->
     <div>
-      <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
-        {{ inProgressTasksCount }} {{ inProgressTasksCount === 1 ? 'tarefa' : 'tarefas' }} em
-        progresso
+      <q-chip v-if="pendingTasksCount > 0" color="orange" outline class="q-ma-sm" size="sm">
+        {{ pendingTasksCount }}
+        {{ pendingTasksCount === 1 ? 'tarefa pendente' : 'tarefas pendentes' }}
       </q-chip>
-      <q-chip v-if="allTasksCount > 0" color="green" outline class="q-ma-sm" size="sm">
-        {{ allTasksCount }} {{ allTasksCount === 1 ? 'tarefa' : 'tarefas' }} no total
+      <q-chip v-if="inProgressTasksCount > 0" color="blue" outline class="q-ma-sm" size="sm">
+        {{ inProgressTasksCount }}
+        {{ inProgressTasksCount === 1 ? 'tarefa' : 'tarefas' }} em andamento
+      </q-chip>
+      <q-chip v-if="finishedTasksCount > 0" color="green" outline class="q-ma-sm" size="sm">
+        {{ finishedTasksCount }}
+        {{ finishedTasksCount === 1 ? 'tarefa concluída' : 'tarefas concluídas' }}
+      </q-chip>
+      <q-chip v-if="allTasksCount > 0" color="purple" outline class="q-ma-sm" size="sm">
+        {{ allTasksCount }}
+        {{ allTasksCount === 1 ? 'tarefa' : 'tarefas' }} no total
       </q-chip>
     </div>
     <!-- Lista de tarefas -->
@@ -68,7 +77,9 @@ export default {
 
     const isCreateTaskFormOpen = ref(false)
     const inProgressTasksCount = ref(0)
+    const finishedTasksCount = ref(0)
     const allTasksCount = ref(0)
+    const pendingTasksCount = ref(0)
     const newTask = ref<CreateTask>({
       title: '',
       description: '',
@@ -117,9 +128,19 @@ export default {
         ).length
 
         allTasksCount.value = tasksStore.tasks.length
+
+        finishedTasksCount.value = tasksStore.tasks.filter(
+          (task) => task.status === 'finished',
+        ).length
+
+        pendingTasksCount.value = tasksStore.tasks.filter(
+          (task) => task.status === 'pending',
+        ).length
       },
       { immediate: true },
     )
+
+    console.log(finishedTasksCount.value)
 
     return {
       newTask,
@@ -127,8 +148,10 @@ export default {
       handleOpenDialog,
       handleCreateTask,
       handleCloseDialog,
+      finishedTasksCount,
       inProgressTasksCount,
       isCreateTaskFormOpen,
+      pendingTasksCount,
     }
   },
   components: {

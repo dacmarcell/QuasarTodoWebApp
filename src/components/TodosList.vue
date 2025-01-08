@@ -78,8 +78,8 @@ export default {
     const isCreateTaskFormOpen = ref(false)
     const inProgressTasksCount = ref(0)
     const finishedTasksCount = ref(0)
-    const allTasksCount = ref(0)
     const pendingTasksCount = ref(0)
+    const allTasksCount = ref(0)
     const newTask = ref<CreateTask>({
       title: '',
       description: '',
@@ -123,24 +123,13 @@ export default {
     watch(
       () => tasksStore.tasks,
       async () => {
-        inProgressTasksCount.value = tasksStore.tasks.filter(
-          (task) => task.status === 'in-progress',
-        ).length
-
         allTasksCount.value = tasksStore.tasks.length
-
-        finishedTasksCount.value = tasksStore.tasks.filter(
-          (task) => task.status === 'finished',
-        ).length
-
-        pendingTasksCount.value = tasksStore.tasks.filter(
-          (task) => task.status === 'pending',
-        ).length
+        inProgressTasksCount.value = tasksStore.inProgressTasksCount
+        finishedTasksCount.value = tasksStore.totalFinishedTasksCount
+        pendingTasksCount.value = tasksStore.totalPendingTasksCount
       },
       { immediate: true },
     )
-
-    console.log(finishedTasksCount.value)
 
     return {
       newTask,

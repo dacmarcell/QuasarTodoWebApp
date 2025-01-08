@@ -1,17 +1,25 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { QVueGlobals } from 'quasar'
 import { api } from 'src/boot/axios'
-import { CreateTask, Task, UpdateTask } from 'src/components/models'
+import { CreateTask, FilterStatus, Task, UpdateTask } from 'src/components/models'
 
 export const useTasksStore = defineStore('tasks', {
   state: () => ({
     tasks: [] as Task[],
-    counter: 0,
+    filter: null as FilterStatus | null,
   }),
 
   getters: {
     allTasks(state) {
       return state.tasks
+    },
+
+    filteredTasks(state) {
+      if (state.filter === 'all' || !state.filter) {
+        return state.tasks
+      }
+
+      return state.tasks.filter((task) => task.status === state.filter)
     },
 
     totalTasksCount(state) {
@@ -28,8 +36,8 @@ export const useTasksStore = defineStore('tasks', {
   },
 
   actions: {
-    filterByStatus(status: string) {
-      return this.tasks.filter((task) => task.status === status)
+    setFilter(status: FilterStatus | null) {
+      this.filter = status
     },
 
     async deleteAllFinishedTasks($q: QVueGlobals) {

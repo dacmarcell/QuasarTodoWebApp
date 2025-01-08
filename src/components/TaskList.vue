@@ -13,14 +13,16 @@
             Concluído em: {{ formatDate(task.finished_at) }}
           </q-item-label>
 
-          <q-item-label caption class="q-mt-sm">
+          <q-item-label v-if="task.categories.length > 0" caption class="q-mt-sm">
             Categorias:
             <q-chip
               v-for="category in task.categories"
               :key="category.id"
-              class="q-ma-xs"
-              color="secondary"
+              color="info"
               label-color="white"
+              class="q-ma-sm"
+              size="sm"
+              outline
             >
               {{ category.name }}
             </q-chip>

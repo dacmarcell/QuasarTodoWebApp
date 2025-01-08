@@ -2,7 +2,6 @@
   <q-page class="q-pa-lg">
     <div class="row justify-between items-center">
       <h1 class="text-primary">Dashboard</h1>
-      <q-btn icon="refresh" label="Atualizar" color="primary" flat @click="fetchData" />
     </div>
     <div class="row justify-around q-gutter-lg q-mt-md">
       <q-card flat bordered class="col-12 col-md-4">
@@ -24,8 +23,8 @@
         </q-card-section>
       </q-card>
     </div>
-    <div class="row q-gutter-lg q-mt-lg">
-      <q-card flat bordered class="col-12 col-md-5">
+    <div class="row q-gutter q-mt-lg">
+      <q-card flat bordered class="col-12 col-md-6">
         <q-card-section>
           <h3 class="text-primary">Resumo</h3>
           <ul>
@@ -35,104 +34,43 @@
           </ul>
         </q-card-section>
       </q-card>
+      <q-card flat bordered class="col-12 col-md-6">
+        <q-card-section>
+          <h3 class="text-primary">Lista de categorias</h3>
+          <ul>
+            <li v-for="category in categories" :key="category.id">{{ category.name }}</li>
+          </ul>
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, onMounted } from 'vue'
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-} from 'chart.js'
-
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+import { useQuasar } from 'quasar'
+import { useCategoriesStore } from 'src/stores/category-store'
+import { ref, defineComponent, computed, onMounted } from 'vue'
 
 export default defineComponent({
   name: 'DashboardPage',
   setup() {
-    const tasks = ref([
-      { id: 1, title: 'Tarefa 1', status: 'completed' },
-      { id: 2, title: 'Tarefa 2', status: 'pending' },
-      { id: 3, title: 'Tarefa 3', status: 'in-progress' },
-    ])
+    const categoriesStore = useCategoriesStore()
+    const $q = useQuasar()
+
+    const categories = computed(() => categoriesStore.categories)
+
     const metrics = ref({
       totalTasks: 3,
       completedTasks: 1,
       pendingTasks: 1,
       inProgressTasks: 1,
     })
-    const chartData = ref({
-      labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril'],
-      datasets: [
-        {
-          label: 'Tarefas Criadas',
-          data: [12, 19, 3, 5],
-          backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726', '#EF5350'],
-        },
-      ],
-    })
-    const chartOptions = ref({
-      responsive: true,
-      maintainAspectRatio: false,
-    })
-    const columns = ref([
-      { name: 'id', required: true, label: 'ID', field: 'id' },
-      { name: 'title', label: 'Título', field: 'title' },
-      { name: 'status', label: 'Status', field: 'status' },
-    ])
-    const pagination = ref({ rowsPerPage: 10 })
 
-    const getStatusColor = (status: string) => {
-      switch (status) {
-        case 'pending':
-          return 'orange'
-        case 'in-progress':
-          return 'blue'
-        case 'completed':
-          return 'green'
-        default:
-          return 'grey'
-      }
-    }
-
-    const formatStatusName = (status: string) => {
-      switch (status) {
-        case 'pending':
-          return 'Pendente'
-        case 'in-progress':
-          return 'Em Progresso'
-        case 'completed':
-          return 'Concluída'
-        default:
-          return 'Desconhecido'
-      }
-    }
-
-    const fetchData = () => {
-      console.log('Fetching data...')
-    }
-
-    onMounted(() => {
-      console.log('Dashboard loaded.')
+    onMounted(async () => {
+      await categoriesStore.getTasks($q)
     })
 
-    return {
-      tasks,
-      metrics,
-      chartData,
-      chartOptions,
-      columns,
-      pagination,
-      getStatusColor,
-      formatStatusName,
-      fetchData,
-    }
+    return { categories, metrics }
   },
 })
 </script>

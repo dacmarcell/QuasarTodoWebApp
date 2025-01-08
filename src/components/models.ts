@@ -9,7 +9,6 @@ export type Task = {
 }
 
 export type TaskStatus = 'pending' | 'in-progress' | 'finished'
-export type FilterStatus = 'all' | TaskStatus
 
 export type CreateTask = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'finished_at'>
 export type UpdateTask = Partial<CreateTask>

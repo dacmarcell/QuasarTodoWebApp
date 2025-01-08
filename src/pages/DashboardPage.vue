@@ -4,8 +4,6 @@
       <h1 class="text-primary">Dashboard</h1>
       <q-btn icon="refresh" label="Atualizar" color="primary" flat @click="fetchData" />
     </div>
-
-    <!-- Cards de Métricas -->
     <div class="row justify-around q-gutter-lg q-mt-md">
       <q-card flat bordered class="col-12 col-md-4">
         <q-card-section>
@@ -26,15 +24,7 @@
         </q-card-section>
       </q-card>
     </div>
-
-    <!-- Gráficos e Resumo -->
     <div class="row q-gutter-lg q-mt-lg">
-      <q-card flat bordered class="col-12 col-md-7">
-        <q-card-section>
-          <h3 class="text-primary">Gráfico de Tarefas</h3>
-          <BarChart :chart-data="chartData" :chart-options="chartOptions" />
-        </q-card-section>
-      </q-card>
       <q-card flat bordered class="col-12 col-md-5">
         <q-card-section>
           <h3 class="text-primary">Resumo</h3>
@@ -43,30 +33,6 @@
             <li>Tarefas Concluídas: {{ metrics.completedTasks }}</li>
             <li>Tarefas Pendentes: {{ metrics.pendingTasks }}</li>
           </ul>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <!-- Tabela de Tarefas -->
-    <div class="row q-mt-lg">
-      <q-card flat bordered class="col-12">
-        <q-card-section>
-          <h3 class="text-primary">Lista de Tarefas</h3>
-          <q-table
-            :rows="tasks"
-            :columns="columns"
-            row-key="id"
-            flat
-            bordered
-            :pagination="pagination"
-            hide-bottom
-          >
-            <template v-slot:body-cell-status="props">
-              <q-chip :color="getStatusColor(props.row.status)" outline size="sm">
-                {{ formatStatusName(props.row.status) }}
-              </q-chip>
-            </template>
-          </q-table>
         </q-card-section>
       </q-card>
     </div>
@@ -84,15 +50,11 @@ import {
   CategoryScale,
   LinearScale,
 } from 'chart.js'
-import { defineChartComponent } from 'vue-chart-3'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
-const BarChart = defineChartComponent('bar_chart', 'bar')
-
 export default defineComponent({
   name: 'DashboardPage',
-  components: { BarChart },
   setup() {
     const tasks = ref([
       { id: 1, title: 'Tarefa 1', status: 'completed' },

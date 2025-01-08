@@ -33,7 +33,6 @@ export default {
   name: 'StatusFilters',
   setup() {
     const tasksStore = useTasksStore()
-
     const filter = computed({
       get: () => tasksStore.filter,
       set: (value) => {
